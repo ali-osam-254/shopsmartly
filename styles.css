@@ -7,7 +7,6 @@
   --muted:#a9b7d0;
   --brand:#0ea5e9;
   --brand2:#22c55e;
-  --danger:#ef4444;
   --border: rgba(255,255,255,.10);
   --shadow: 0 10px 30px rgba(0,0,0,.35);
   --radius: 16px;
@@ -120,17 +119,8 @@ a{color:inherit; text-decoration:none}
   border-color: transparent;
   color:white;
 }
-.btn--ghost{
-  background: rgba(14,165,233,.10);
-}
-.btn--soft{
-  background: rgba(148,163,184,.12);
-}
-.btn--danger{
-  background: rgba(239,68,68,.12);
-  border-color: rgba(239,68,68,.35);
-  color: color-mix(in oklab, var(--text), var(--danger) 45%);
-}
+.btn--ghost{background: rgba(14,165,233,.10)}
+.btn--soft{background: rgba(148,163,184,.12)}
 
 .chip{
   display:inline-flex; align-items:center; gap:8px;
@@ -161,6 +151,7 @@ a{color:inherit; text-decoration:none}
 .dot--yellow{background:#f59e0b}
 .dot--green{background:#22c55e}
 .hero__cardBody{padding:16px 14px}
+
 .skeleton{
   background: linear-gradient(90deg, rgba(148,163,184,.15), rgba(148,163,184,.30), rgba(148,163,184,.15));
   background-size: 200% 100%;
@@ -256,15 +247,6 @@ a{color:inherit; text-decoration:none}
   display:flex; gap:10px; align-items:center;
 }
 .card__btn{width:100%}
-.small-link{
-  display:inline-flex; align-items:center; gap:8px;
-  color:var(--muted);
-  font-weight:800;
-  padding:10px 12px;
-  border-radius:14px;
-  border:1px solid var(--border);
-  background: rgba(148,163,184,.10);
-}
 
 .empty{
   border:1px dashed var(--border);
@@ -309,84 +291,6 @@ a{color:inherit; text-decoration:none}
   color: var(--text);
 }
 
-.fab{
-  position:fixed;
-  inset:auto 16px 16px auto;
-  height:48px; width:48px;
-  border-radius: 16px;
-  border:1px solid var(--border);
-  background: linear-gradient(135deg, var(--brand), #2563eb);
-  color:white;
-  box-shadow: var(--shadow);
-  cursor:pointer;
-}
-
-.modal{position:fixed; inset:0; z-index:100; display:grid; place-items:center}
-.modal__backdrop{position:absolute; inset:0; background: rgba(2,6,23,.55)}
-.modal__panel{
-  position:relative;
-  width:min(960px, calc(100% - 22px));
-  max-height: calc(100% - 22px);
-  overflow:auto;
-  border-radius: 18px;
-  border:1px solid var(--border);
-  background: var(--surface);
-  box-shadow: var(--shadow);
-}
-.modal__head{
-  display:flex; align-items:center; justify-content:space-between;
-  gap:10px;
-  padding:14px 14px;
-  border-bottom:1px solid var(--border);
-}
-.modal__title{margin:0}
-.modal__body{padding:14px}
-
-.label{display:block; font-weight:900; margin:0 0 6px}
-.hint{margin:8px 0 0; color:var(--muted); font-weight:700; font-size:13px}
-.input, .textarea{
-  width:100%;
-  border-radius:14px;
-  border:1px solid var(--border);
-  background: color-mix(in oklab, var(--bg2), transparent 5%);
-  color:var(--text);
-  padding:10px 12px;
-  outline:none;
-}
-.textarea{resize:vertical}
-
-.admin__actions{display:flex; gap:10px; flex-wrap:wrap; align-items:center}
-.file-btn{position:relative; overflow:hidden}
-.admin__sub{margin:8px 0 10px}
-.admin__list{display:flex; flex-direction:column; gap:10px}
-
-.admin-item{
-  border:1px solid var(--border);
-  background: color-mix(in oklab, var(--bg2), transparent 5%);
-  border-radius: 14px;
-  padding:10px 12px;
-  display:flex;
-  justify-content:space-between;
-  gap:10px;
-  align-items:center;
-}
-.admin-item__meta{display:flex; flex-direction:column; gap:2px}
-.admin-item__title{font-weight:1000}
-.admin-item__small{color:var(--muted); font-weight:800; font-size:12.5px}
-.admin-item__actions{display:flex; gap:8px; flex-wrap:wrap}
-
-.editor{
-  margin-top:14px;
-  border-top:1px solid var(--border);
-  padding-top:14px;
-}
-.editor__grid{
-  display:grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap:12px;
-}
-.editor__actions{display:flex; gap:10px; margin-top:12px; flex-wrap:wrap}
-
 @media (max-width: 980px){
   .hero__inner{grid-template-columns:1fr}
   .card{grid-column: span 6}
@@ -397,7 +301,6 @@ a{color:inherit; text-decoration:none}
   .hero__title{font-size:34px}
   .card{grid-column: span 12}
   .info-card{grid-column: span 12}
-  .editor__grid{grid-template-columns: 1fr}
 }
 
 /* RTL/LTR polishing */
