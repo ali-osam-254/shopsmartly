@@ -7,9 +7,8 @@ const STORAGE = {
   THEME: "ss_theme",
 };
 
-// ضع Tracking ID / Affiliate Tag هنا (مثال: mytag-21)
-// إذا تركته فارغًا، لن يضيف tag للرابط.
-const AFFILIATE_TAG = ""; // <-- ضع التاج هنا
+// ضع Tracking ID / Affiliate Tag هنا
+const AFFILIATE_TAG = "shopsmart0be0-20"; // <-- Affiliate Tag الخاص بك
 
 const I18N = {
   ar: {
@@ -104,6 +103,7 @@ const I18N = {
   }
 };
 
+// عناصر HTML
 const els = {
   langBtn: document.getElementById("langBtn"),
   themeBtn: document.getElementById("themeBtn"),
@@ -123,21 +123,29 @@ let state = {
   filtered: [],
 };
 
-function setHtmlLang(lang){
+// الحصول على معلمات URL
+function getQS(name) {
+  return new URLSearchParams(location.search).get(name);
+}
+
+// تعيين اللغة
+function setHtmlLang(lang) {
   const html = document.documentElement;
   html.dataset.lang = lang;
   html.lang = lang === "ar" ? "ar" : "en";
   html.dir = lang === "ar" ? "rtl" : "ltr";
 }
 
-function setTheme(theme){
+// تعيين السمة (الظلام أو الضوء)
+function setTheme(theme) {
   document.documentElement.dataset.theme = theme;
   state.theme = theme;
   localStorage.setItem(STORAGE.THEME, theme);
   els.themeBtn.textContent = theme === "light" ? "🌙" : "☀️";
 }
 
-function t(key){
+// الترجمة
+function t(key) {
   const langPack = I18N[state.lang];
   const parts = key.split(".");
   let cur = langPack;
@@ -145,8 +153,9 @@ function t(key){
   return typeof cur === "function" ? cur : (cur ?? key);
 }
 
-function applyI18n(){
-  document.querySelectorAll("[data-i18n]").forEach(node=>{
+// تطبيق الترجمة على العناصر
+function applyI18n() {
+  document.querySelectorAll("[data-i18n]").forEach(node => {
     const key = node.getAttribute("data-i18n");
     const val = t(key);
     node.textContent = typeof val === "function" ? val() : val;
@@ -155,13 +164,14 @@ function applyI18n(){
   const phKey = els.searchInput.getAttribute("data-i18n-placeholder");
   if (phKey) els.searchInput.placeholder = t(phKey);
 
-  els.sortSelect.querySelectorAll("option").forEach(opt=>{
+  els.sortSelect.querySelectorAll("option").forEach(opt => {
     const k = opt.getAttribute("data-i18n");
     if (k) opt.textContent = t(k);
   });
 }
 
-function setLang(lang){
+// تغيير اللغة
+function setLang(lang) {
   state.lang = lang;
   localStorage.setItem(STORAGE.LANG, lang);
   setHtmlLang(lang);
@@ -173,13 +183,15 @@ function setLang(lang){
   applyFiltersAndRender();
 }
 
-function uniqueCategories(products){
+// الحصول على فئات المنتجات المميزة
+function uniqueCategories(products) {
   const set = new Set();
-  products.forEach(p=> set.add(p.category || "Other"));
-  return Array.from(set).sort((a,b)=> a.localeCompare(b));
+  products.forEach(p => set.add(p.category || "Other"));
+  return Array.from(set).sort((a, b) => a.localeCompare(b));
 }
 
-function buildCategoryOptions(){
+// بناء خيارات الفئات
+function buildCategoryOptions() {
   const current = els.categorySelect.value || "ALL";
   const cats = uniqueCategories(state.products);
 
@@ -190,78 +202,82 @@ function buildCategoryOptions(){
   optAll.textContent = t("controls.allCategories");
   els.categorySelect.appendChild(optAll);
 
-  cats.forEach(c=>{
+  cats.forEach(c => {
     const opt = document.createElement("option");
     opt.value = c;
     opt.textContent = c;
     els.categorySelect.appendChild(opt);
   });
 
-  if ([...els.categorySelect.options].some(o=>o.value===current)){
+  if ([...els.categorySelect.options].some(o => o.value === current)) {
     els.categorySelect.value = current;
   }
 }
 
-function normalize(str){
+// تنظيف النصوص
+function normalize(str) {
   return (str || "").toString().trim().toLowerCase();
 }
 
-function withAffiliateTag(url){
+// إضافة رابط الأفلييت إلى الرابط
+function withAffiliateTag(url) {
   const tag = (AFFILIATE_TAG || "").trim();
   if (!tag) return url;
 
-  try{
+  try {
     const u = new URL(url);
     u.searchParams.set("tag", tag);
     return u.toString();
-  }catch{
+  } catch {
     const hasQ = url.includes("?");
-    if (url.includes("tag=")){
+    if (url.includes("tag=")) {
       return url.replace(/tag=[^&]+/i, `tag=${encodeURIComponent(tag)}`);
     }
     return url + (hasQ ? "&" : "?") + `tag=${encodeURIComponent(tag)}`;
-  }
 }
 
-function pickText(obj){
+// الحصول على النص حسب اللغة
+function pickText(obj) {
   if (!obj) return "";
   return obj[state.lang] || obj.en || obj.ar || "";
 }
 
-function sortProducts(list){
+// فرز المنتجات
+function sortProducts(list) {
   const v = els.sortSelect.value;
   const arr = [...list];
 
-  if (v === "featured"){
-    arr.sort((a,b)=>{
+  if (v === "featured") {
+    arr.sort((a, b) => {
       const af = a.featured ? 1 : 0;
       const bf = b.featured ? 1 : 0;
       if (bf !== af) return bf - af;
       return (b.createdAt || 0) - (a.createdAt || 0);
     });
-  } else if (v === "newest"){
-    arr.sort((a,b)=> (b.createdAt || 0) - (a.createdAt || 0));
-  } else if (v === "az"){
-    arr.sort((a,b)=> pickText(a.title).localeCompare(pickText(b.title)));
+  } else if (v === "newest") {
+    arr.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+  } else if (v === "az") {
+    arr.sort((a, b) => pickText(a.title).localeCompare(pickText(b.title)));
   }
 
   return arr;
 }
 
-function applyFiltersAndRender(){
+// تطبيق الفلاتر وعرض المنتجات
+function applyFiltersAndRender() {
   const q = normalize(els.searchInput.value);
   const cat = els.categorySelect.value;
 
   let list = [...state.products];
 
-  if (cat && cat !== "ALL"){
+  if (cat && cat !== "ALL") {
     list = list.filter(p => (p.category || "Other") === cat);
   }
-  if (q){
-    list = list.filter(p=>{
+  if (q) {
+    list = list.filter(p => {
       const title = normalize(pickText(p.title));
-      const desc  = normalize(pickText(p.description));
-      const c     = normalize(p.category);
+      const desc = normalize(pickText(p.description));
+      const c = normalize(p.category);
       return title.includes(q) || desc.includes(q) || c.includes(q);
     });
   }
@@ -271,14 +287,15 @@ function applyFiltersAndRender(){
   render();
 }
 
-function render(){
+// عرض المنتجات
+function render() {
   const list = state.filtered;
   els.grid.innerHTML = "";
 
   els.statusLine.textContent = I18N[state.lang].products.status(list.length);
   els.emptyState.hidden = list.length !== 0;
 
-  list.forEach(p=>{
+  list.forEach(p => {
     const card = document.createElement("article");
     card.className = "card";
 
@@ -318,31 +335,18 @@ function render(){
   });
 }
 
-function escapeHtml(str){
+// إضافة الحماية ضد هجمات XSS
+function escapeHtml(str) {
   return String(str ?? "")
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
 }
 
-function normalizeProducts(list){
-  const now = Date.now();
-  return list.map((p, idx)=>({
-    id: p.id || `p_${idx}_${now}`,
-    category: p.category || "Other",
-    badge: p.badge || "",
-    featured: !!p.featured,
-    createdAt: typeof p.createdAt === "number" ? p.createdAt : (now - idx * 1000),
-    image: p.image || "",
-    url: p.url || "",
-    title: p.title || { ar:"", en:"" },
-    description: p.description || { ar:"", en:"" }
-  }));
-}
-
-async function loadProducts(){
+// تحميل المنتجات من products.json
+async function loadProducts() {
   const res = await fetch("products.json", { cache: "no-store" });
   if (!res.ok) throw new Error("Failed to load products.json");
   const data = await res.json();
@@ -350,14 +354,16 @@ async function loadProducts(){
   state.products = normalizeProducts(data);
 }
 
-function resetControls(){
+// تنظيف الفلاتر
+function resetControls() {
   els.searchInput.value = "";
   els.categorySelect.value = "ALL";
   els.sortSelect.value = "featured";
   applyFiltersAndRender();
 }
 
-function enableSmoothScroll(){
+// إضافة التمرير السلس
+function enableSmoothScroll() {
   document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', function (e) {
       const href = this.getAttribute("href");
@@ -370,12 +376,13 @@ function enableSmoothScroll(){
   });
 }
 
-function bindEvents(){
-  els.themeBtn.addEventListener("click", ()=>{
+// ربط الأحداث
+function bindEvents() {
+  els.themeBtn.addEventListener("click", () => {
     setTheme(state.theme === "light" ? "dark" : "light");
   });
 
-  els.langBtn.addEventListener("click", ()=>{
+  els.langBtn.addEventListener("click", () => {
     setLang(state.lang === "ar" ? "en" : "ar");
   });
 
@@ -387,7 +394,8 @@ function bindEvents(){
   enableSmoothScroll();
 }
 
-async function init(){
+// البدء
+async function init() {
   bindEvents();
 
   const savedTheme = localStorage.getItem(STORAGE.THEME);
@@ -397,9 +405,9 @@ async function init(){
   const autoLang = (navigator.language || "en").toLowerCase().startsWith("ar") ? "ar" : "en";
   setLang(savedLang || autoLang);
 
-  try{
+  try {
     await loadProducts();
-  }catch(e){
+  } catch (e) {
     console.error(e);
     els.statusLine.textContent = I18N[state.lang].products.loadError;
     state.products = [];
